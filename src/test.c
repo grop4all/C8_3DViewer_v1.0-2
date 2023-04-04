@@ -87,7 +87,7 @@ START_TEST(init_polygon_3) {
   v = 4;
   f = 4;
   index = 1;
-  line = "1 2 3";
+  line = "f 1 2 3";
 
   data = create_data();
   data->count_of_facets = f;

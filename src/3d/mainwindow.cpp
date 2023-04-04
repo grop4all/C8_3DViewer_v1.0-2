@@ -21,8 +21,7 @@ void MainWindow::paintfile() {
     QString path = QFileDialog::getOpenFileName(0, "Open File .obj", "/Users/", "*.obj");
     if (path == "") return;
     QByteArray ba = path.toLocal8Bit();
-    char *c_path = ba.data();
-    ui->widget->filename = c_path;
+    ui->widget->filename = ba.data();
     ui->widget->initializeGL();
     ui->widget->initialize_data();
     ui->label_V_count->setText(QString::number(ui->widget->data->count_of_vertexes));
