@@ -1,7 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 
+CFLAGS = -Wall -Wextra -Werror -std=c11 
 LIBS = -lcheck
 OS := $(shell uname -s)
+BACKEND:= parser.c transformations.c
 
 
 ifeq ($(OS),Linux)
@@ -41,7 +42,23 @@ dist: install
 	mkdir dist_3d
 	tar -cf dist_3d/3d.tar build_3d
 
-gcov_report: test.c build
+
+gcov_report: gcov_test.info
+	genhtml -o report/ gcov_test.info
+	open report/index.html
+
+gcov_test.info: gcov_test gcov_test.gcda
+	lcov -t "gcov_test" -o gcov_test.info --no-external -c -d .
+
+gcov_test:  
+	gcc $(CFLAGS) --coverage test.c  $(BACKEND) $(LIBS) $(LINUX_LIBS) -o gcov_test
+
+gcov_test.gcda:
+	chmod +x *
+	./gcov_test
+# конец нового репорта
+
+gcov_report_bkd: test.c build
 	clear
 	gcc $(CFLAGS) -g test.c *.o -o coverage.o $(LIBS) $(LINUX_LIBS) -fprofile-arcs -ftest-coverage  
 	./coverage.o
@@ -50,6 +67,7 @@ gcov_report: test.c build
 	open coverage/index.html
 
 clean:
+	- rm -rf report gcov_report gcov_test
 	- rm *.o *.h.gch
 	- rm -rf *.gcda *.gcno *.info
 	- rm -rf coverage 

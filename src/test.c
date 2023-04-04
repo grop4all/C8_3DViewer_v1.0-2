@@ -3,8 +3,9 @@
 #include <stdlib.h>
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+    #define M_PI 3.14159265358979323846
 #endif
+
 
 #include "./parser.h"
 #include "./transformations.h"
@@ -31,6 +32,16 @@ START_TEST(parsline_2) {
   ck_assert_int_eq(parsline(filename, data), 0);
   ck_assert_ptr_nonnull(data);
   free(data);
+}
+END_TEST
+
+START_TEST(parsline_3){
+  char *filename = "obj/cat.obj";
+  data_t *data = NULL;
+  data = create_data();
+  ck_assert_int_eq(parsline(filename, data), 1);
+  ck_assert_ptr_nonnull(data);
+  destroy_data(&data);
 }
 END_TEST
 
@@ -100,6 +111,7 @@ START_TEST(init_polygon_3) {
   for (int i = 0; i < data->polygons[index].numbers_of_vertexes_in_facets; ++i)
     ck_assert_int_eq(data->polygons[index].vertexes[i], i + 1);
 
+    
   free(data->polygons[index].vertexes);
   free(data->polygons[0].vertexes);
   free(data->polygons);
@@ -157,7 +169,8 @@ START_TEST(found_min_max_or_1) {
   ck_assert_int_eq(ptr_z[0], 1);
   ck_assert_int_eq(ptr_z[1], 3);
 
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
   free(ptr_x);
   free(ptr_y);
@@ -188,8 +201,9 @@ START_TEST(first_init_val_gl_1) {
   for (int i = 1; i < matrix.rows; ++i)
     for (int j = 0; j < 3; ++j)
       ck_assert_double_eq(matrix.matrix[i][j], i * 0.5);
-
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -217,8 +231,9 @@ START_TEST(move_x_1) {
 
   for (int i = 1; i < matrix.rows; ++i)
     ck_assert_double_eq(matrix.matrix[i][0], i + arg);
-
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -246,7 +261,8 @@ START_TEST(move_y_1) {
 
   for (int i = 1; i < matrix.rows; ++i)
     ck_assert_double_eq(matrix.matrix[i][1], i + arg);
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -275,7 +291,8 @@ START_TEST(move_z_1) {
   for (int i = 1; i < matrix.rows; ++i)
     ck_assert_double_eq(matrix.matrix[i][2], i + arg);
 
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -308,7 +325,8 @@ START_TEST(rotation_by_ox_1) {
     ck_assert_double_eq(matrix.matrix[i][2], -sin(arg) + cos(arg));
   }
 
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -340,7 +358,8 @@ START_TEST(rotation_by_oy_1) {
     ck_assert_double_eq(matrix.matrix[i][1], 1);
     ck_assert_double_eq(matrix.matrix[i][2], -sin(arg) + cos(arg));
   }
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
 }
 END_TEST
@@ -372,8 +391,71 @@ START_TEST(rotation_by_oz_1) {
     ck_assert_double_eq(matrix.matrix[i][1], -sin(arg) + cos(arg));
     ck_assert_double_eq(matrix.matrix[i][2], 1);
   }
-  for (int i = 0; i < matrix.rows; ++i) free(matrix.matrix[i]);
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
   free(matrix.matrix);
+}
+END_TEST
+
+
+START_TEST(first_centers_1){
+  matrix_t matrix;
+  matrix.rows = 2;
+  matrix.cols = 3;
+  matrix.matrix = (double **)malloc(sizeof(double *) * matrix.rows);
+
+  for (int i = 0; i < matrix.rows; ++i)
+    matrix.matrix[i] = (double *)malloc(sizeof(double) * matrix.cols);
+
+  for (int i = 0; i < matrix.rows; ++i)
+    for (int j = 0; j < 3; ++j) matrix.matrix[i][j] = .0;
+
+  for (int i = 0; i < matrix.rows; ++i) {
+    matrix.matrix[i][0] = 1;
+    matrix.matrix[i][1] = 1;
+    matrix.matrix[i][2] = 1;
+  }
+  first_centers(&matrix);
+
+  for (int i = 1; i < matrix.rows; ++i) 
+    for (int j = 0; j < matrix.cols; ++j)
+      ck_assert_double_eq(matrix.matrix[i][j], 0
+      );
+
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
+  free(matrix.matrix);
+}
+END_TEST
+
+START_TEST(scale_model_1){
+  double arg;
+  arg = 1.1111;
+  matrix_t matrix;
+  matrix.rows = 2;
+  matrix.cols = 3;
+  matrix.matrix = (double **)malloc(sizeof(double *) * matrix.rows);
+
+  for (int i = 0; i < matrix.rows; ++i)
+    matrix.matrix[i] = (double *)malloc(sizeof(double) * matrix.cols);
+
+  for (int i = 0; i < matrix.rows; ++i)
+    for (int j = 0; j < 3; ++j) matrix.matrix[i][j] = .0;
+
+  for (int i = 0; i < matrix.rows; ++i) {
+    matrix.matrix[i][0] = 1;
+    matrix.matrix[i][1] = 1;
+    matrix.matrix[i][2] = 1;
+  }
+  scale_model(&matrix, arg);
+  for (int i = 0; i < matrix.rows; ++i) 
+    for (int j = 0; j < matrix.cols; ++j)
+      ck_assert_double_eq(matrix.matrix[i][j], arg);
+  
+  for (int i = 0; i < matrix.rows; ++i)
+    free(matrix.matrix[i]);
+  free(matrix.matrix);
+
 }
 END_TEST
 
@@ -382,7 +464,7 @@ Suite *s21_3d() {
 
   suite = suite_create("s21_3d");
   TCase *tcase_create_data = tcase_create("create_data");
-  TCase *tcase_parsline = tcase_create("parline");
+  TCase *tcase_parsline = tcase_create("parsline");
   TCase *tcase_init_data = tcase_create("init_data");
   TCase *tcase_init_polygon = tcase_create("init_polygon");
   TCase *tcase_destroy_data = tcase_create("destroy_data");
@@ -390,6 +472,8 @@ Suite *s21_3d() {
   TCase *tcase_first_init_val_gl = tcase_create("first_init_val_gl");
   TCase *tcase_move = tcase_create("move");
   TCase *tcase_rotation_by = tcase_create("rotation_by");
+  TCase *tcase_first_center = tcase_create("first_center");
+  TCase *tcase_scale_model = tcase_create("tcase_scale_model");
 
   suite_add_tcase(suite, tcase_create_data);
   tcase_add_test(tcase_create_data, create_data_1);
@@ -397,6 +481,8 @@ Suite *s21_3d() {
   suite_add_tcase(suite, tcase_parsline);
   tcase_add_test(tcase_parsline, parsline_1);
   tcase_add_test(tcase_parsline, parsline_2);
+  tcase_add_test(tcase_parsline, parsline_3);
+
 
   suite_add_tcase(suite, tcase_init_data);
   tcase_add_test(tcase_init_data, init_data_1);
@@ -425,6 +511,13 @@ Suite *s21_3d() {
   tcase_add_test(tcase_rotation_by, rotation_by_ox_1);
   tcase_add_test(tcase_rotation_by, rotation_by_oy_1);
   tcase_add_test(tcase_rotation_by, rotation_by_oz_1);
+
+
+  suite_add_tcase(suite, tcase_first_center);
+  tcase_add_test(tcase_first_center, first_centers_1);
+
+  suite_add_tcase(suite,tcase_scale_model);
+  tcase_add_test(tcase_scale_model, scale_model_1);
 
   return suite;
 }
