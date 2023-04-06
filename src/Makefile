@@ -43,7 +43,7 @@ dist: install
 	tar -cf dist_3d/3d.tar build_3d
 
 
-gcov_report: gcov_test.info
+gcov_report: gcov_test.info build test
 	genhtml -o report/ gcov_test.info
 	open report/index.html
 
@@ -58,13 +58,6 @@ gcov_test.gcda:
 	./gcov_test
 # конец нового репорта
 
-gcov_report_bkd: test.c build
-	clear
-	gcc $(CFLAGS) -g test.c *.o -o coverage.o $(LIBS) $(LINUX_LIBS) -fprofile-arcs -ftest-coverage  
-	./coverage.o
-	lcov -c -d . -o coverage.info
-	genhtml coverage.info -o coverage
-	open coverage/index.html
 
 clean:
 	- rm -rf report gcov_report gcov_test
